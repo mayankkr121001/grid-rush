@@ -11,13 +11,13 @@ const resetDatabase = async () => {
   }
 
   try {
-    console.log('🔄 Connecting to MongoDB to refresh database...');
+    console.log('🔄 Connecting to MongoDB (database: test) to reset data...');
     await mongoose.connect(env.MONGODB_URI, {
-      dbName: 'gridrush',
+      dbName: 'test',
     });
-    console.log('✅ Connected to MongoDB (database: gridrush)');
+    console.log('✅ Connected to MongoDB (database: test)');
 
-    console.log('🧹 Clearing existing cells and players in gridrush...');
+    console.log('🧹 Clearing existing cells and players in "test"...');
     await Cell.deleteMany({});
     await Player.deleteMany({});
     console.log('✅ Cleared old data.');
@@ -25,10 +25,10 @@ const resetDatabase = async () => {
     console.log('🌱 Seeding 400 fresh unclaimed cells...');
     await seedBoard();
 
-    console.log('🎉 Database "gridrush" has been completely refreshed and seeded with 400 available blocks!');
+    console.log('🎉 Database "test" has been completely refreshed and seeded with 400 available blocks!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error refreshing database:', error);
+    console.error('❌ Error resetting database:', error);
     process.exit(1);
   }
 };

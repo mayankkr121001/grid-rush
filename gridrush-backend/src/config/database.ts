@@ -9,9 +9,9 @@ export const connectDatabase = async (): Promise<boolean> => {
 
   try {
     await mongoose.connect(env.MONGODB_URI, {
-      dbName: 'gridrush',
+      dbName: 'test',
     });
-    console.log('✅ Connected to MongoDB (database: gridrush)');
+    console.log('✅ Connected to MongoDB (database: test)');
     return true;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
