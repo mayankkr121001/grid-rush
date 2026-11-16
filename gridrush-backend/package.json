@@ -8,7 +8,8 @@
     "build": "rimraf dist && tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx src/test/verify-logic.ts"
+    "test": "tsx src/test/verify-logic.ts",
+    "reset-db": "tsx src/scripts/reset-db.ts"
   },
   "keywords": [
     "real-time",
