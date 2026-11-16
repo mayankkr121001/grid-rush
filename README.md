@@ -179,3 +179,4 @@ Because both the frontend and backend are in one repository, deployment to **Ver
 * **Dynamic Top 10 Leaderboard:** Live rankings with medal badges (🥇, 🥈, 🥉).
 * **Tactile Micro-Interactions & Audio Feedback:** Web Audio API capture chimes, bounce animations, remote capture flash beacons, and conflict shake alerts.
 * **Full Keyboard Accessibility:** Navigate the grid using **Arrow Keys** and capture cells using **Space** or **Enter**.
+
