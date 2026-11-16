@@ -1,6 +1,22 @@
 import { Player, Cell, BoardStats, LeaderboardEntry } from '../types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const TOKEN_KEY = 'gridrush_token';
+
+export const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+export const setAuthToken = (token: string): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(TOKEN_KEY, token);
+};
+
+export const clearAuthToken = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(TOKEN_KEY);
+};
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
@@ -8,6 +24,12 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const headers = new Headers(options.headers || {});
   if (options.body && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
+  }
+
+  // Attach Bearer token fallback for cross-domain / cross-port environments
+  const token = getAuthToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const response = await fetch(url, {
@@ -28,17 +50,27 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 }
 
 export const playersApi = {
-  create: (username: string) =>
-    request<{ player: Player; recoveryCode: string }>('/players', {
+  create: async (username: string) => {
+    const res = await request<{ player: Player; recoveryCode: string; token?: string }>('/players', {
       method: 'POST',
       body: JSON.stringify({ username }),
-    }),
+    });
+    if (res.token) {
+      setAuthToken(res.token);
+    }
+    return res;
+  },
 
-  recover: (recoveryCode: string) =>
-    request<{ player: Player }>('/players/recover', {
+  recover: async (recoveryCode: string) => {
+    const res = await request<{ player: Player; token?: string }>('/players/recover', {
       method: 'POST',
       body: JSON.stringify({ recoveryCode }),
-    }),
+    });
+    if (res.token) {
+      setAuthToken(res.token);
+    }
+    return res;
+  },
 
   getMe: () =>
     request<{ player: Player }>('/players/me', {
@@ -50,10 +82,15 @@ export const playersApi = {
       method: 'POST',
     }),
 
-  logout: () =>
-    request<{ message: string }>('/players/logout', {
-      method: 'POST',
-    }),
+  logout: async () => {
+    try {
+      return await request<{ message: string }>('/players/logout', {
+        method: 'POST',
+      });
+    } finally {
+      clearAuthToken();
+    }
+  },
 };
 
 export const boardApi = {

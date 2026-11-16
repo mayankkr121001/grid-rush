@@ -15,12 +15,13 @@ export const handleCreatePlayer = async (
     // Set signed HttpOnly session cookie
     setSessionCookie(res, result.token);
 
-    // Return public player profile and raw recovery code ONCE
+    // Return public player profile, recovery code, and token
     res.status(201).json({
       success: true,
       data: {
         player: result.player,
         recoveryCode: result.rawRecoveryCode,
+        token: result.token,
       },
     });
   } catch (error) {
@@ -40,11 +41,12 @@ export const handleRecoverPlayer = async (
     // Set signed HttpOnly session cookie
     setSessionCookie(res, result.token);
 
-    // Return public player profile
+    // Return public player profile and token
     res.status(200).json({
       success: true,
       data: {
         player: result.player,
+        token: result.token,
       },
     });
   } catch (error) {

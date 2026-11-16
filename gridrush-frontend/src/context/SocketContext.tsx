@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { usePlayer } from './PlayerContext';
+import { getAuthToken } from '../api/client';
 import { ConnectionStatus } from '../types';
 
 interface CapturedCellEvent {
@@ -36,6 +37,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Sockets are initialized when the client mounts
     const socketInstance: Socket = io(SOCKET_URL, {
       withCredentials: true,
+      auth: {
+        token: getAuthToken() || undefined,
+      },
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: Infinity,
@@ -77,6 +81,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       socketInstance.disconnect();
     };
   }, []);
+
+  // Update socket credentials and reconnect when authentication status changes
+  useEffect(() => {
+    if (socketRef.current) {
+      const token = getAuthToken();
+      socketRef.current.auth = { token: token || undefined };
+      if (!socketRef.current.connected) {
+        socketRef.current.connect();
+      }
+    }
+  }, [isAuthenticated]);
 
   return (
     <SocketContext.Provider

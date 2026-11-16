@@ -22,7 +22,7 @@ export const initSocketServer = (httpServer: HttpServer) => {
     httpServer,
     {
       cors: {
-        origin: env.CLIENT_URL,
+        origin: (origin, callback) => callback(null, true),
         credentials: true,
       },
       pingTimeout: 20000,
@@ -42,7 +42,10 @@ export const initSocketServer = (httpServer: HttpServer) => {
         if (key) cookies[key] = decodeURIComponent(v.join('='));
       });
 
-      const token = cookies[env.SESSION_COOKIE_NAME];
+      // Support both cookie and handshake auth token
+      const token =
+        cookies[env.SESSION_COOKIE_NAME] ||
+        (socket.handshake.auth?.token as string | undefined);
 
       if (token) {
         const payload = verifyPlayerToken(token);

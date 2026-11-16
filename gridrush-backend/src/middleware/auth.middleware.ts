@@ -12,7 +12,10 @@ export const requireAuth = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = req.cookies?.[env.SESSION_COOKIE_NAME];
+  // Support both HttpOnly cookie and Authorization Bearer header
+  const authHeader = req.headers.authorization;
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const token = req.cookies?.[env.SESSION_COOKIE_NAME] || bearerToken;
 
   if (!token) {
     res.status(401).json({
